@@ -1,4 +1,4 @@
-name: Slack Notification on PR Merge
+name: Slack and Email Notification on PR Merge
 
 on:
   pull_request:
@@ -19,3 +19,24 @@ jobs:
             "text":"✅ Pull Request Merged\nRepository: ${{ github.repository }}\nPR: #${{ github.event.pull_request.number }}\nBranch: ${{ github.event.pull_request.base.ref }}\nMerged By: ${{ github.event.pull_request.merged_by.login }}"
           }' \
           ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Pull Request Merged
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_USERNAME }}
+          body: |
+            Pull Request Successfully Merged
+
+            Repository: ${{ github.repository }}
+            PR Number: #${{ github.event.pull_request.number }}
+            Branch: ${{ github.event.pull_request.base.ref }}
+
+            Merged By:
+            ${{ github.event.pull_request.merged_by.login }}
